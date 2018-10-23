@@ -41,17 +41,8 @@ public class Main {
         book.setBorrowed(true);
         book.setPrice(33.99);
 
-        Dao<Book, Integer> dao = DaoManager.createDao(connectionSource, Book.class);        //<Klasa elementów bazy, klasa ID> Dao umożliwia przeróżne operacje na BD
+        Dao<Book, ?> dao = DaoManager.createDao(connectionSource, Book.class);
         dao.create(book);
-        System.out.println("\n BOOK:" + book);
-        book.setTitle("Hobbit");                                                            //zmieniamy tytuł ksiązki w bazie danych
-        dao.update(book);
-        System.out.println("\n AFTER UPDATE:____ " + book);
-        System.out.println("\n queryForId:____ " + dao.queryForId(1));                      //zwraca pozycję w BD o id = 1
-        dao.delete(book);
-        System.out.println("\n AFTER DELETE:____ " + book);                                 //wyświetla się w konsoli bo usunęliśmy go z BD ale jest cały czas w pamięci.
-        book = dao.queryForId(book.getId());
-        System.out.println("\n AFTER QUERY:____ " + book);                                  //zwraca null (bo wcześniej usunęliśmy book)
 
         connectionSource.close();
     }
