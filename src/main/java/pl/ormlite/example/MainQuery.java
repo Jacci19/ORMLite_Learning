@@ -102,7 +102,7 @@ public class MainQuery {
         updateBuilder.updateColumnValue("DESCRIPTION", "Nowy opis książki z updejtu");
         updateBuilder.where().isNull("DESCRIPTION");
 
-        int booksUpdate = updateBuilder.update();
+        int booksUpdate = updateBuilder.update();                                       //zwraca 1 jeśli updejt się powiódł, jeśli nie to zwraca 0
         System.out.println("Status booksUpdate: " + booksUpdate);
         System.out.println("Book3:____ " + book3);                                      //tu null ciągle jest ale w bazie danych już się podmienił
 
