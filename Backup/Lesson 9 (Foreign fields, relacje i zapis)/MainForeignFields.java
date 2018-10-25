@@ -66,11 +66,9 @@ public class MainForeignFields {
     //... a tak, gdy to wpiszemy (foreignAutoCreate = true, foreignAutoRefresh = true ) - 3 linie mniej
         book.setAuthor(author);
         daoBook.create(book);
-
         System.out.println("\nPo zapisie do bazy danych: " + book);         //tu book są jeszcze null...
         Book book2 = daoBook.queryForId(1);
         System.out.println("\nPo zapytaniu do bazy danych: " + book2);      //...ale tu już nie
-
 
         connectionSource.close();
     }
