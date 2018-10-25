@@ -1,26 +1,24 @@
 //https://www.youtube.com/watch?v=0xCpwNbbBc8&list=PLpzwMkmxJDUzSwjdC5nVEY9h3rdfgXX7V
 //SQLite Studio - tego używam
 
-package pl.ormlite.example;
+package pl.ormlite.example.Main;
 
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.dao.GenericRawResults;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.UpdateBuilder;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
+        import com.j256.ormlite.dao.Dao;
+        import com.j256.ormlite.dao.DaoManager;
+        import com.j256.ormlite.dao.GenericRawResults;
+        import com.j256.ormlite.jdbc.JdbcConnectionSource;
+        import com.j256.ormlite.support.ConnectionSource;
+        import com.j256.ormlite.table.TableUtils;
+        import pl.ormlite.example.Model.Book;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+        import java.io.IOException;
+        import java.sql.SQLException;
+        import java.text.ParseException;
+        import java.text.SimpleDateFormat;
+        import java.util.Date;
+        import java.util.List;
 
-public class MainQuery {
+public class Main {
 
     public static void main(String[] args) throws SQLException, IOException, ParseException {
 
@@ -65,7 +63,7 @@ public class MainQuery {
         //trzecia książka
         Book book3 = new Book();                                                              //wprowadzamy jedną książkę do bazy
         book3.setTitle("Forrest Gump");
-        book3.setDescription(null);
+        book3.setDescription("Jakiś opis ksiązki o Forescie");
         book3.setIsbn("33333");
         book3.setAddedDate(new Date());
 
@@ -85,26 +83,50 @@ public class MainQuery {
         dao.create(book2);
         dao.create(book3);
 
-        System.out.println("\n_________________wyszukujemy obiekt w którym tytuł = Carrie_________________");
-        QueryBuilder<Book, Integer> queryBuilder = dao.queryBuilder();
-        queryBuilder.where().eq("TITLE", "Carrie");                 //wyszukujemy obiekt w którym tytuł = Carrie
-        PreparedQuery<Book> prepare = queryBuilder.prepare();                         //przygotowanie
-        List<Book> result = dao.query(prepare);
-        //List<Book> result2 = dao.query(dao.queryBuilder().where().eq("TITLE", "Carrie").prepare());                                   //taką linią możemy zastąpić 4 powyższe linie
-        //List<Book> result2 = dao.query(dao.queryBuilder().where().eq("TITLE", "Carrie").and().eq("PRICE", 32.50).prepare());          //zastosowanie and
+        System.out.println("_______________Pierwsze zapytanie_______________");
+        GenericRawResults<String[]> rawResult = dao.queryRaw("SELECT * FROM books");     //wybierz wszystkie elementy z bazy books i przypisz je do rawResult
+        List<String[]> result = rawResult.getResults();                                     //Lista zawierająca tablice stringów
 
-        result.forEach(e->{
-            System.out.println(e);
+        result.forEach(e->{                                                                 //wypisanie rezultatu zapytania
+            for (String s: e) {
+                System.out.println(s);
+            }
+            System.out.println("__________");
         });
 
-        System.out.println("\n_________________podmienia null w polu description na nowy opis_________________");
-        UpdateBuilder<Book, Integer> updateBuilder = dao.updateBuilder();
-        updateBuilder.updateColumnValue("DESCRIPTION", "Nowy opis książki z updejtu");
-        updateBuilder.where().isNull("DESCRIPTION");
+        System.out.println("_______________Drugie zapytanie_______________");
+        GenericRawResults<String[]> where = dao.queryRaw("SELECT * FROM books WHERE title = 'Carrie'");      //wybierz wszystkie elementy z bazy books które mają tytuł Carrie
+        List<String[]> resultsWhere = where.getResults();                                                       //Lista zawierająca tablice stringów
 
-        int booksUpdate = updateBuilder.update();                                       //zwraca 1 jeśli updejt się powiódł, jeśli nie to zwraca 0
-        System.out.println("Status booksUpdate: " + booksUpdate);
-        System.out.println("Book3:____ " + book3);                                      //tu null ciągle jest ale w bazie danych już się podmienił
+        resultsWhere.forEach(e->{                                                                               //wypisanie rezultatu zapytania
+            for (String s: e) {
+                System.out.println(s);
+            }
+        });
+
+        System.out.println("_______________Trzecie zapytanie_______________");
+        GenericRawResults<String[]> selectMinMax = dao.queryRaw("SELECT MIN(price), MAX(price) FROM books");         //znajdź najniższą i najwyższą cenę książek
+        List<String[]> resultsMinMax = selectMinMax.getResults();                                                       //Lista zawierająca tablice stringów
+
+        resultsMinMax.forEach(e->{                                                                                      //wypisanie rezultatu zapytania
+            for (String s: e) {
+                System.out.println(s);
+            }
+        });
+
+        System.out.println("_______________Czwarte zapytanie_______________");
+        GenericRawResults<String[]> selectCount = dao.queryRaw("SELECT count(*) FROM books WHERE borrowed = 1");     //policz książki, które są pożyczone
+        List<String[]> resultsCount = selectCount.getResults();                                                         //Lista zawierająca tablice stringów
+
+        resultsCount.forEach(e->{                                                                                      //wypisanie rezultatu zapytania
+            for (String s: e) {
+                System.out.println(s);
+            }
+        });
+
+        System.out.println("_______________Prostszy sposób na otrzymanie pojedynczego wyniku z BD:_______________");
+        double avgUnits = dao.queryRawValue("SELECT AVG(price) FROM books");
+        System.out.println("Srednia cena książek wynosi " + avgUnits);
 
         connectionSource.close();
     }

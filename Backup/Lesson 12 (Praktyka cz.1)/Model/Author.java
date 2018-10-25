@@ -1,4 +1,4 @@
-package pl.ormlite.example;
+package pl.ormlite.example.Model;
 
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
